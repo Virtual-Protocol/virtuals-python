@@ -1,5 +1,6 @@
 import os
 from virtuals_sdk import game
+import json
 
 agent = game.Agent(
     api_key=os.environ.get("VIRTUALS_API_KEY"),
@@ -41,3 +42,8 @@ agent.react(
     # specify the task that the agent should do
     task="reply with a music recommendation",
 )
+
+# Export out agent_template.json to upload to game-lite.virtuals.io
+with open('agent_template.json', 'w') as f:
+    agent_dict = json.loads(agent.export())
+    json.dump(agent_dict, f, indent=4)
