@@ -38,7 +38,7 @@ class GameSDK:
                     "description": description,
                     "worldInfo": world_info,
                     "functions": functions,
-                    "customFunctions": [x.to_dict() for x in custom_functions]
+                    "customFunctions": [x.toJson() for x in custom_functions]
                 }
             },
             headers={"x-api-key": self.api_key}
