@@ -43,7 +43,8 @@ agent.react(
     task="reply with a music recommendation",
 )
 
-# Export out agent_template.json to upload to game-lite.virtuals.io
-with open('agent_template.json', 'w') as f:
-    agent_dict = json.loads(agent.export())
-    json.dump(agent_dict, f, indent=4)
+# Export out agent.json to upload to game-lite.virtuals.io
+agent.export()
+
+# To deploy the agent
+agent.deploy_twitter()
