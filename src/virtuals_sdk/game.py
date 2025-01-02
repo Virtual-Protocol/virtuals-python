@@ -1,3 +1,4 @@
+import re
 from typing import List, Any, Dict, Optional, Union, Set
 from dataclasses import dataclass, asdict
 from string import Template
@@ -82,6 +83,69 @@ class Function:
 
         return arg_dict
 
+    def _get_nested_value(self, data: Dict[str, Any], path: str) -> Any:
+        """Get a value from a nested dictionary or list by path."""
+        keys = re.findall(r"([^\[\].]+|\[(\d+)\])", path)
+        for key in keys:
+            key = key[0] if isinstance(key, tuple) else key
+            if isinstance(data, list):
+                try:
+                    index = (
+                        int(key[key.find("[") + 1 : key.find("]")])
+                        if "[" in key
+                        else int(key)
+                    )
+                    data = data[index]
+                except (ValueError, IndexError, KeyError):
+                    return None
+            elif isinstance(data, dict):
+                data = data.get(key)
+            else:
+                return None
+        return data
+
+    def _interpolate_template_mustache(
+        self, template_str: str, values: Dict[str, Any]
+    ) -> str:
+        """Interpolate a Mustache-style template string with given values, including nested paths and sections."""
+        mustache_style = template_str.replace("{{", "${").replace("}}", "}")
+
+        # Handle sections (loops)
+        section_pattern = re.compile(r"\${#([^}]+)}(.*?)(\${/[^}]+})", re.DOTALL)
+        while True:
+            match = section_pattern.search(mustache_style)
+            if not match:
+                break
+
+            section_path = match.group(1)
+            section_content = match.group(2)
+            section_end = match.group(3)
+
+            section_values = self._get_nested_value(values, section_path)
+
+            if isinstance(section_values, list):
+                expanded_content = ""
+                for item in section_values:
+                    expanded_content += self._interpolate_template_mustache(
+                        section_content, {**values, **item}
+                    )
+
+                mustache_style = mustache_style.replace(
+                    match.group(0), expanded_content
+                )
+            else:
+                mustache_style = mustache_style.replace(match.group(0), "")
+
+        # handle regular placeholders
+        placeholders = re.findall(r"\${([^}]+)}", mustache_style)
+        for placeholder in placeholders:
+            value = self._get_nested_value(values, placeholder)
+            mustache_style = mustache_style.replace(
+                f"${{{placeholder}}}", str(value) if value is not None else ""
+            )
+
+        return mustache_style
+
     def _interpolate_template(self, template_str: str, values: Dict[str, Any]) -> str:
         """Interpolate a template string with given values"""
         # Convert Template-style placeholders ({{var}}) to Python style ($var)
@@ -136,8 +200,11 @@ class Function:
                 result = response.text or None
             # Interpolate success feedback if provided
             if hasattr(self.config, 'success_feedback'):
-                print(self._interpolate_template(self.config.success_feedback, 
-                                              {"response": result, **arg_dict}))
+                print(
+                    self._interpolate_template_mustache(
+                        self.config.success_feedback, {"response": result, **arg_dict}
+                    )
+                )
             return result
         else:
             # Handle error
