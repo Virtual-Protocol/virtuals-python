@@ -1,9 +1,11 @@
-from typing import List, Any, Dict, Optional, Union, Set
-from dataclasses import dataclass, asdict
-from string import Template
 import json
 import uuid
+from dataclasses import asdict, dataclass
+from string import Template
+from typing import Any, Optional
+
 import requests
+
 from virtuals_sdk import sdk
 
 
@@ -13,7 +15,7 @@ class FunctionArgument:
     description: str
     type: str
     id: str = None
-    
+
     def __post_init__(self):
         self.id = self.id or str(uuid.uuid4())
 
@@ -22,8 +24,8 @@ class FunctionArgument:
 class FunctionConfig:
     method: str = "get"
     url: str = ""
-    headers: Dict = None
-    payload: Dict = None
+    headers: dict = None
+    payload: dict = None
     success_feedback: str = ""
     error_feedback: str = ""
     isMainLoop: bool = False
@@ -31,6 +33,7 @@ class FunctionConfig:
     headersString: str = "{}"  # Added field
     payloadString: str = "{}"  # Added field
     platform: str = None
+    timeout: tuple[int, int] = (3, 27)  # (connect_timeout, read_timeout)
 
     def __post_init__(self):
         self.headers = self.headers or {}
@@ -44,7 +47,7 @@ class FunctionConfig:
 class Function:
     fn_name: str
     fn_description: str
-    args: List[FunctionArgument]
+    args: list[FunctionArgument]
     config: FunctionConfig
     hint: str = ""
     id: str = None
@@ -59,10 +62,10 @@ class Function:
             "fn_description": self.fn_description,
             "args": [asdict(arg) for arg in self.args],
             "hint": self.hint,
-            "config": asdict(self.config)
+            "config": asdict(self.config),
         }
 
-    def _validate_args(self, *args) -> Dict[str, Any]:
+    def _validate_args(self, *args) -> dict[str, Any]:
         """Validate and convert positional arguments to named arguments"""
         if len(args) != len(self.args):
             raise ValueError(f"Expected {len(self.args)} arguments, got {len(args)}")
@@ -82,13 +85,13 @@ class Function:
 
         return arg_dict
 
-    def _interpolate_template(self, template_str: str, values: Dict[str, Any]) -> str:
+    def _interpolate_template(self, template_str: str, values: dict[str, Any]) -> str:
         """Interpolate a template string with given values"""
         # Convert Template-style placeholders ({{var}}) to Python style ($var)
-        python_style = template_str.replace('{{', '$').replace('}}', '')
+        python_style = template_str.replace("{{", "$").replace("}}", "")
         return Template(python_style).safe_substitute(values)
 
-    def _prepare_request(self, arg_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def _prepare_request(self, arg_dict: dict[str, Any]) -> dict[str, Any]:
         """Prepare the request configuration with interpolated values"""
         config = self.config
 
@@ -101,9 +104,9 @@ class Function:
             if isinstance(value, str):
                 # Handle template values
                 template_key = self._interpolate_template(key, arg_dict)
-                if value.strip('{}') in arg_dict:
+                if value.strip("{}") in arg_dict:
                     # For array and other non-string types, use direct value
-                    payload[template_key] = arg_dict[value.strip('{}')]
+                    payload[template_key] = arg_dict[value.strip("{}")]
                 else:
                     # For string interpolation
                     payload[template_key] = self._interpolate_template(value, arg_dict)
@@ -114,7 +117,8 @@ class Function:
             "method": config.method,
             "url": url,
             "headers": config.headers,
-            "data": json.dumps(payload)
+            "data": json.dumps(payload),
+            "timeout": config.timeout,
         }
 
     def __call__(self, *args):
@@ -126,7 +130,7 @@ class Function:
         request_config = self._prepare_request(arg_dict)
 
         # Make the request
-        response = requests.request(**request_config)
+        response = requests.request(**request_config)  # noqa: S113
 
         # Handle response
         if response.ok:
@@ -135,9 +139,8 @@ class Function:
             except requests.exceptions.JSONDecodeError:
                 result = response.text or None
             # Interpolate success feedback if provided
-            if hasattr(self.config, 'success_feedback'):
-                print(self._interpolate_template(self.config.success_feedback, 
-                                              {"response": result, **arg_dict}))
+            if hasattr(self.config, "success_feedback"):
+                print(self._interpolate_template(self.config.success_feedback, {"response": result, **arg_dict}))
             return result
         else:
             # Handle error
@@ -146,11 +149,7 @@ class Function:
             except requests.exceptions.JSONDecodeError:
                 error_msg = {"description": response.text or response.reason}
             if hasattr(self.config, "error_feedback"):
-                print(
-                    self._interpolate_template(
-                        self.config.error_feedback, {"response": error_msg, **arg_dict}
-                    )
-                )
+                print(self._interpolate_template(self.config.error_feedback, {"response": error_msg, **arg_dict}))
             raise requests.exceptions.HTTPError(f"Request failed: {error_msg}")
 
 
@@ -162,47 +161,47 @@ class Agent:
         description: str = "",
         world_info: str = "",
         main_heartbeat: int = 15,
-        reaction_heartbeat: int = 5
+        reaction_heartbeat: int = 5,
     ):
         self.game_sdk = sdk.GameSDK(api_key)
         self.goal = goal
         self.description = description
         self.world_info = world_info
-        self.enabled_functions: List[str] = []
-        self.custom_functions: List[Function] = []
+        self.enabled_functions: list[str] = []
+        self.custom_functions: list[Function] = []
         self.main_heartbeat = main_heartbeat
         self.reaction_heartbeat = reaction_heartbeat
 
     def set_goal(self, goal: str):
         self.goal = goal
         return True
-    
+
     def set_description(self, description: str):
         self.description = description
         return True
-    
+
     def set_world_info(self, world_info: str):
         self.world_info = world_info
         return True
-    
+
     def set_main_heartbeat(self, main_heartbeat: int):
         self.main_heartbeat = main_heartbeat
         return True
-    
+
     def set_reaction_heartbeat(self, reaction_heartbeat: int):
         self.reaction_heartbeat = reaction_heartbeat
         return True
 
     def get_goal(self) -> str:
         return self.goal
-    
+
     def get_description(self) -> str:
         return self.description
-    
+
     def get_world_info(self) -> str:
         return self.world_info
 
-    def list_available_default_twitter_functions(self) -> Dict[str, str]:
+    def list_available_default_twitter_functions(self) -> dict[str, str]:
         """
         List all of the default functions (currently default functions are only available for Twitter/X platform)
         TODO: will be moved to another layer of abstraction later
@@ -210,7 +209,7 @@ class Agent:
         # Combine built-in and custom function descriptions
         return self.game_sdk.functions()
 
-    def use_default_twitter_functions(self, functions: List[str]):
+    def use_default_twitter_functions(self, functions: list[str]):
         """
         Enable built-in functions by default
         """
@@ -232,15 +231,17 @@ class Agent:
         Simulate the agent configuration for Twitter
         """
         return self.game_sdk.simulate(
-            session_id,
-            self.goal,
-            self.description,
-            self.world_info,
-            self.enabled_functions,
-            self.custom_functions
+            session_id, self.goal, self.description, self.world_info, self.enabled_functions, self.custom_functions
         )
 
-    def react(self, session_id: str, platform: str, tweet_id: str = None, event: str = None, task: str = None):
+    def react(
+        self,
+        session_id: str,
+        platform: str,
+        tweet_id: Optional[str] = None,
+        event: Optional[str] = None,
+        task: Optional[str] = None,
+    ):
         """
         React to a tweet
         """
@@ -254,7 +255,7 @@ class Agent:
             description=self.description,
             world_info=self.world_info,
             functions=self.enabled_functions,
-            custom_functions=self.custom_functions
+            custom_functions=self.custom_functions,
         )
 
     def deploy_twitter(self):
@@ -268,7 +269,7 @@ class Agent:
             self.enabled_functions,
             self.custom_functions,
             self.main_heartbeat,
-            self.reaction_heartbeat
+            self.reaction_heartbeat,
         )
 
     def export(self) -> str:
@@ -285,15 +286,15 @@ class Agent:
                     "fn_description": func.fn_description,
                     "args": [asdict(arg) for arg in func.args],
                     "hint": func.hint,
-                    "config": asdict(func.config)
+                    "config": asdict(func.config),
                 }
                 for func in self.custom_functions
-            ]
+            ],
         }
         agent_json = json.dumps(export_dict, indent=4)
 
         # save to file
-        with open('agent.json', 'w') as f:
+        with open("agent.json", "w") as f:
             f.write(agent_json)
 
         return agent_json

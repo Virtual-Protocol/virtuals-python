@@ -1,21 +1,37 @@
+from typing import Optional
+
 import requests
 
 
 class GameSDK:
     api_url: str = "https://game-api.virtuals.io/api"
     api_key: str
+    timeout: int = 30
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, timeout: int = 30):
         self.api_key = api_key
+        self.timeout = timeout
+
+    def health(self) -> dict:
+        """
+        Check the health status of the API
+        Returns:
+            dict: A dictionary containing the health status and version information
+        """
+        response = requests.get(f"{self.api_url}/health", headers={"x-api-key": self.api_key}, timeout=self.timeout)
+
+        if response.status_code != 200:
+            raise Exception(response.json())
+
+        return response.json()
 
     def functions(self):
         """
         Get all default functions
         """
-        response = requests.get(
-            f"{self.api_url}/functions", headers={"x-api-key": self.api_key})
+        response = requests.get(f"{self.api_url}/functions", headers={"x-api-key": self.api_key}, timeout=self.timeout)
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise Exception(response.json())
 
         functions = {}
@@ -25,7 +41,9 @@ class GameSDK:
 
         return functions
 
-    def simulate(self, session_id: str,  goal: str, description: str, world_info: str, functions: list, custom_functions: list):
+    def simulate(
+        self, session_id: str, goal: str, description: str, world_info: str, functions: list, custom_functions: list
+    ):
         """
         Simulate the agent configuration
         """
@@ -38,20 +56,31 @@ class GameSDK:
                     "description": description,
                     "worldInfo": world_info,
                     "functions": functions,
-                    "customFunctions": [x.toJson() for x in custom_functions]
+                    "customFunctions": [x.toJson() for x in custom_functions],
                 }
             },
-            headers={"x-api-key": self.api_key}
+            headers={"x-api-key": self.api_key},
+            timeout=self.timeout,
         )
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise Exception(response.json())
 
         return response.json()["data"]
 
-    def react(self, session_id: str, platform: str, goal: str,
-              description: str, world_info: str, functions: list, custom_functions: list,
-              event: str = None, task: str = None, tweet_id: str = None):
+    def react(
+        self,
+        session_id: str,
+        platform: str,
+        goal: str,
+        description: str,
+        world_info: str,
+        functions: list,
+        custom_functions: list,
+        event: Optional[str] = None,
+        task: Optional[str] = None,
+        tweet_id: Optional[str] = None,
+    ):
         """
         Simulate the agent configuration
         """
@@ -63,34 +92,37 @@ class GameSDK:
             "description": description,
             "worldInfo": world_info,
             "functions": functions,
-            "customFunctions": [x.toJson() for x in custom_functions]
+            "customFunctions": [x.toJson() for x in custom_functions],
         }
 
-        if (event):
+        if event:
             payload["event"] = event
 
-        if (task):
+        if task:
             payload["task"] = task
-            
-        if (tweet_id):
+
+        if tweet_id:
             payload["tweetId"] = tweet_id
-            
+
         print(payload)
 
-        response = requests.post(
-            url,
-            json={
-                "data": payload
-            },
-            headers={"x-api-key": self.api_key}
-        )
+        response = requests.post(url, json={"data": payload}, headers={"x-api-key": self.api_key}, timeout=self.timeout)
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise Exception(response.json())
 
         return response.json()["data"]
 
-    def deploy(self, goal: str, description: str, world_info: str, functions: list, custom_functions: list, main_heartbeat: int, reaction_heartbeat: int):
+    def deploy(
+        self,
+        goal: str,
+        description: str,
+        world_info: str,
+        functions: list,
+        custom_functions: list,
+        main_heartbeat: int,
+        reaction_heartbeat: int,
+    ):
         """
         Simulate the agent configuration
         """
@@ -103,16 +135,17 @@ class GameSDK:
                     "worldInfo": world_info,
                     "functions": functions,
                     "customFunctions": custom_functions,
-                    "gameState" : {
-                        "mainHeartbeat" : main_heartbeat,
-                        "reactionHeartbeat" : reaction_heartbeat,
-                    }
+                    "gameState": {
+                        "mainHeartbeat": main_heartbeat,
+                        "reactionHeartbeat": reaction_heartbeat,
+                    },
                 }
             },
-            headers={"x-api-key": self.api_key}
+            headers={"x-api-key": self.api_key},
+            timeout=self.timeout,
         )
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise Exception(response.json())
 
         return response.json()["data"]

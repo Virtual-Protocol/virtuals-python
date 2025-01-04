@@ -1,5 +1,4 @@
-from typing import Dict, List
-from virtuals_sdk.game import Function, FunctionConfig, FunctionArgument
+from virtuals_sdk.game import Function, FunctionArgument, FunctionConfig
 
 
 class DiscordClient:
@@ -22,7 +21,7 @@ class DiscordClient:
         """
         self.bot_token = bot_token
 
-        self._functions: Dict[str, Function] = {
+        self._functions: dict[str, Function] = {
             "send_message": self._create_send_message(),
             "add_reaction": self._create_add_reaction(),
             "pin_message": self._create_pin_message(),
@@ -30,7 +29,7 @@ class DiscordClient:
         }
 
     @property
-    def available_functions(self) -> List[str]:
+    def available_functions(self) -> list[str]:
         """Get list of available function names."""
         return list(self._functions.keys())
 
@@ -58,7 +57,6 @@ class DiscordClient:
         return self._functions[fn_name]
 
     def _create_send_message(self) -> Function:
-
         # Send Message Function
         send_message = Function(
             fn_name="send_message",
@@ -94,7 +92,6 @@ class DiscordClient:
         return send_message
 
     def _create_add_reaction(self) -> Function:
-
         # Add Reaction Function
         add_reaction = Function(
             fn_name="add_reaction",
@@ -118,9 +115,7 @@ class DiscordClient:
             ],
             config=FunctionConfig(
                 method="put",
-                url=self.create_api_url(
-                    "channels/{{channel_id}}/messages/{{message_id}}/reactions/{{emoji}}/@me"
-                ),
+                url=self.create_api_url("channels/{{channel_id}}/messages/{{message_id}}/reactions/{{emoji}}/@me"),
                 platform="discord",
                 headers={"Authorization": f"Bot {self.bot_token}"},
                 success_feedback="Reaction added successfully.",
@@ -131,7 +126,6 @@ class DiscordClient:
         return add_reaction
 
     def _create_pin_message(self) -> Function:
-
         # Pin Message Function
         pin_message = Function(
             fn_name="pin_message",
@@ -161,7 +155,6 @@ class DiscordClient:
         return pin_message
 
     def _create_delete_message(self) -> Function:
-
         # Delete Message Function
         delete_message = Function(
             fn_name="delete_message",
@@ -180,9 +173,7 @@ class DiscordClient:
             ],
             config=FunctionConfig(
                 method="delete",
-                url=self.create_api_url(
-                    "channels/{{channel_id}}/messages/{{message_id}}"
-                ),
+                url=self.create_api_url("channels/{{channel_id}}/messages/{{message_id}}"),
                 platform="discord",
                 headers={"Authorization": f"Bot {self.bot_token}"},
                 success_feedback="Message deleted successfully.",
