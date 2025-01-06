@@ -154,6 +154,104 @@ class Function:
             raise requests.exceptions.HTTPError(f"Request failed: {error_msg}")
 
 
+@dataclass
+class Template:
+    template_type: str
+    system_prompt: str = None
+    sys_prompt_response_format: List[int] = None
+    model: str = "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo"
+    temperature: float = 1.0
+    user_prompt: str = None
+    top_k: float = 50.0
+    top_p: float = 0.7
+    repetition_penalty: float = 1.0
+    type: str = None
+    taskDescription: str = None
+    isSandbox: bool = False
+
+    def _validate_fields(self):
+        """Validate all template fields and their values"""
+        # Validate required fields
+        if not self.template_type:
+            raise ValueError("template_type is required")
+        
+        if self.template_type  not in ["POST", "REPLY", "SHARED", "TWITTER_START_SYSTEM_PROMPT", "TWITTER_END_SYSTEM_PROMPT"]:
+            raise ValueError(f"{self.template_type} is invalid, valid types are POST, REPLY, SHARED, TWITTER_START_SYSTEM_PROMPT, TWITTER_END_SYSTEM_PROMPT")
+        
+        # Set default values based on template_type
+        if self.template_type in ["POST", "REPLY"]:
+            if not self.user_prompt:
+                raise ValueError("user_prompt is required")
+            # Common settings for POST and REPLY
+            self.sys_prompt_response_format = self.sys_prompt_response_format or [10, 20, 40, 60, 80]
+            self.temperature = self.temperature or 1.0
+            self.top_k = self.top_k or 50.0
+            self.top_p = self.top_p or 0.7
+            self.repetition_penalty = self.repetition_penalty or 1.0
+            self.model = self.model or "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo"
+            self.type = self.template_type
+            self.isSandbox = False
+            self.userPrompt = self.user_prompt or ""
+            
+            # Additional settings for REPLY only
+            if self.template_type == "REPLY":
+                self.taskDescription = self.taskDescription or "Process incoming tweet. Ignore if it is boring or unimportant. Ignore if the conversation has gone too long."
+                
+        elif self.template_type in ["TWITTER_START_SYSTEM_PROMPT", "TWITTER_END_SYSTEM_PROMPT", "SHARED"]:
+            if not self.system_prompt:
+                raise ValueError("system_prompt is required")
+            self.sys_prompt_response_format = []
+        
+        # Validate sys_prompt_response_format type and values
+        if self.sys_prompt_response_format is not None:
+            if not isinstance(self.sys_prompt_response_format, list):
+                raise TypeError("sys_prompt_response_format must be a list of integers")
+            for num in self.sys_prompt_response_format:
+                if not isinstance(num, int) or num < 10 or num > 80:
+                    raise ValueError("sys_prompt_response_format values must be integers between 10 and 80")
+
+        # Validate numeric ranges
+        if not 0.1 <= self.temperature <= 2.0:
+            raise ValueError("temperature must be between 0.0 and 2.0")
+        if not 0.1 <= self.top_p <= 1.0:
+            raise ValueError("top_p must be between 0.1 and 1.0")
+        if not 1 <= self.top_k <= 100:
+            raise ValueError("top_k must be between 1 and 100")
+        if not 0.1 <= self.repetition_penalty <= 2.0:
+            raise ValueError("repetition_penalty must be greater than or equal to 1.0")
+
+    def __post_init__(self):
+        self._validate_fields()
+        
+        # Convert numeric values to proper type
+        self.temperature = float(self.temperature)
+        self.top_k = float(self.top_k)
+        self.top_p = float(self.top_p)
+        self.repetition_penalty = float(self.repetition_penalty)
+
+    def to_dict(self) -> dict:
+        """Convert template to dictionary format for API submission"""
+        if self.template_type in ["SHARED", "TWITTER_START_SYSTEM_PROMPT", "TWITTER_END_SYSTEM_PROMPT"]:
+            return {
+                "templateType": self.template_type,
+                "systemPrompt": self.system_prompt,
+                "sysPromptResponseFormat": self.sys_prompt_response_format 
+            }
+        else:
+            return {
+                "templateType": self.template_type,
+                "sysPromptResponseFormat": self.sys_prompt_response_format,
+                "model": self.model,
+                "temperature": self.temperature,
+                "userPrompt": self.user_prompt,
+                "topK": self.top_k,
+                "topP": self.top_p,
+                "repetitionPenalty": self.repetition_penalty,
+                "type": self.type,
+                "isSandbox": self.isSandbox
+            }
+
+
 class Agent:
     def __init__(
         self,
@@ -172,6 +270,8 @@ class Agent:
         self.custom_functions: List[Function] = []
         self.main_heartbeat = main_heartbeat
         self.reaction_heartbeat = reaction_heartbeat
+        self.templates: List[Template] = []
+        self.tweet_usernames: List[str] = []
 
     def set_goal(self, goal: str):
         self.goal = goal
@@ -192,6 +292,14 @@ class Agent:
     def set_reaction_heartbeat(self, reaction_heartbeat: int):
         self.reaction_heartbeat = reaction_heartbeat
         return True
+    
+    def set_tweet_usernames(self, usernames: List[str]) -> bool:
+        # Check username limit
+        if len(usernames) > 20:
+            raise ValueError("Maximum number of usernames allowed is 20")
+        
+        self.tweet_usernames = usernames
+        return True
 
     def get_goal(self) -> str:
         return self.goal
@@ -201,6 +309,9 @@ class Agent:
     
     def get_world_info(self) -> str:
         return self.world_info
+    
+    def get_tweet_usernames(self) -> List[str]:
+        return self.tweet_usernames
 
     def list_available_default_twitter_functions(self) -> Dict[str, str]:
         """
@@ -225,6 +336,11 @@ class Agent:
         # Add to custom functions list
         self.custom_functions.append(custom_function)
 
+        return True
+    
+    def add_template(self, template: Template) -> bool:
+        """Add a template to the agent"""
+        self.templates.append(template)
         return True
 
     def simulate_twitter(self, session_id: str):
@@ -268,7 +384,9 @@ class Agent:
             self.enabled_functions,
             self.custom_functions,
             self.main_heartbeat,
-            self.reaction_heartbeat
+            self.reaction_heartbeat,
+            self.templates,
+            self.tweet_usernames
         )
 
     def export(self) -> str:
@@ -288,7 +406,9 @@ class Agent:
                     "config": asdict(func.config)
                 }
                 for func in self.custom_functions
-            ]
+            ],
+            "templates": [asdict(template) for template in self.templates],
+            "tweetUsernames": self.tweet_usernames
         }
         agent_json = json.dumps(export_dict, indent=4)
 
