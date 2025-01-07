@@ -11,8 +11,6 @@ agent = game.Agent(
     world_info="You must always reply user's tweet"
 )
 
-agent.eval_react("Hello World", "Hello World")
-
 # applicable only for platform twitter
 agent.list_available_default_twitter_functions()
 agent.use_default_twitter_functions(["wait", "reply_tweet"])
