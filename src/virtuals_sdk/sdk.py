@@ -4,6 +4,7 @@ import requests
 class GameSDK:
     api_url: str = "https://game-api.virtuals.io/api"
     api_key: str
+    eval_api_url: str = "https://api.evaengine.ai/api"
 
     def __init__(self, api_key: str):
         self.api_key = api_key
@@ -89,6 +90,25 @@ class GameSDK:
             raise Exception(response.json())
 
         return response.json()["data"]
+    
+    def eval_react(self, input_tweet: str, output_tweet: str):
+        """
+        Evaluate the agent reply
+        Checkout your eval dashboard here: https://evaengine.ai/virtuals (import your api key to view)
+        """
+        response = requests.post(
+            f"{self.eval_api_url}/eval/evaluate-tweet",
+            headers={"x-api-key": self.api_key},
+            json={
+                "input_tweet": input_tweet,
+                "output_tweet": output_tweet
+            }
+        )
+
+        if (response.status_code != 200):
+            raise Exception(response.json())
+
+        return response.json()
 
     def deploy(self, goal: str, description: str, world_info: str, functions: list, custom_functions: list, main_heartbeat: int, reaction_heartbeat: int):
         """

@@ -256,6 +256,18 @@ class Agent:
             functions=self.enabled_functions,
             custom_functions=self.custom_functions
         )
+    
+    def eval_react(self, response: List[Dict[str, Any]]):
+        """
+        Evaluate the agent reply with EvaEngine
+        Checkout your eval dashboard here: https://evaengine.ai/virtuals (import your api key to view)
+        """
+        try:
+            original_tweet = response[0]["EVENT-REQUEST"]["event"].split("New tweet: ")[1]
+            replied_tweet = response[-1]["TWEET-CONTENT"]["content"]
+        except (KeyError, IndexError) as e:
+            raise ValueError("Invalid response format - missing tweet content. Please ensure the agent's goal includes replying to tweets.")
+        return self.game_sdk.eval_react(original_tweet, replied_tweet)
 
     def deploy_twitter(self):
         """
