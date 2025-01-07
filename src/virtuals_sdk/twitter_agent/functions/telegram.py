@@ -1,5 +1,5 @@
 from typing import Dict, List
-from virtuals_sdk.game import Function, FunctionConfig, FunctionArgument
+from virtuals_sdk.twitter_agent.game import Function, FunctionConfig, FunctionArgument
 
 class TelegramClient:
     """
