@@ -4,6 +4,7 @@ import requests
 class GameSDK:
     api_url: str = "https://game-api.virtuals.io/api"
     api_key: str
+    eval_api_url: str = "https://api.evaengine.ai/api"
 
     def __init__(self, api_key: str):
         self.api_key = api_key
@@ -96,13 +97,14 @@ class GameSDK:
         Checkout your eval dashboard here: https://evaengine.ai/virtuals (import your api key to view)
         """
         response = requests.post(
-            "https://api.evaengine.ai/api/eval/evaluate-tweet",
+            f"{self.eval_api_url}/eval/evaluate-tweet",
             headers={"x-api-key": self.api_key},
             json={
                 "input_tweet": input_tweet,
                 "output_tweet": output_tweet
             }
         )
+
         if (response.status_code != 200):
             raise Exception(response.json())
 
