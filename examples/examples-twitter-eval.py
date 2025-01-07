@@ -2,6 +2,7 @@ import os
 import requests
 from virtuals_sdk import game
 
+# Checkout your eval dashboard here: https://evaengine.ai/virtuals (import your api key to view)
 def eval_tweet(original_tweet, responded_tweet):
     headers = {
         "x-api-key": "YOUR_API_KEY",  # Replace with actual API key
@@ -36,14 +37,11 @@ result = agent.react(
     tweet_id="1869281466628349975",
 )
 
-print(result)
-event_request = result[0]["EVENT-REQUEST"]
-tweet_request = result[-1]["TWEET-CONTENT"]
+original_tweet = result[0]["EVENT-REQUEST"]["event"].split("New tweet: ")[1]
+replied_tweet = result[-1]["TWEET-CONTENT"]["content"]
 
-original_tweet = event_request["event"].split("New tweet: ")[1]
 print("original_tweet:", original_tweet)
-responded_tweet = tweet_request["content"]
-print("responded_tweet:", responded_tweet)
+print("responded_tweet:", replied_tweet)
 
-eval_result = eval_tweet(original_tweet, responded_tweet)
+eval_result = eval_tweet(original_tweet, replied_tweet)
 print(eval_result)
