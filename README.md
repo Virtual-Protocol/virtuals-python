@@ -126,6 +126,18 @@ response = agent.react(
 )
 ```
 
+We integrate with [EvaEngine by Chromia](https://evaengine.ai/virtuals) for response evaluation, enabling you to optimize your Character Card based on quantitative metrics (truth, accuracy, creativity, engagement) and scoring.
+```python
+response = agent.react(
+  session_id="567", # string identifier that you decide
+  tweet_id="xxxx",
+  platform="twitter",
+)
+original_tweet = response[0]["EVENT-REQUEST"]["event"].split("New tweet: ")[1]
+replied_tweet = response[-1]["TWEET-CONTENT"]["content"]
+eval_result = agent.eval_react(original_tweet, replied_tweet)
+```
+
 Once you are happy, `deploy_twitter` will push your agent configurations to production and run your agent on Twitter/X autonomously.
 ```python
 # deploy agent! (NOTE: supported for Twitter/X only now)

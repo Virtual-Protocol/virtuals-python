@@ -17,18 +17,41 @@ agent.eval_react("Hello World", "Hello World")
 agent.list_available_default_twitter_functions()
 agent.use_default_twitter_functions(["wait", "reply_tweet"])
 
-# running reaction module only for platform twitter
-result = agent.react(
-    session_id="session-twitter",
-    platform="twitter",
-    tweet_id="1869281466628349975",
-)
+# # running reaction module only for platform twitter
+# result = agent.react(
+#     session_id="session-twitter",
+#     platform="twitter",
+#     tweet_id="1869281466628349975",
+# )
 
-original_tweet = result[0]["EVENT-REQUEST"]["event"].split("New tweet: ")[1]
-replied_tweet = result[-1]["TWEET-CONTENT"]["content"]
+# print("original_tweet:", original_tweet)
+# print("responded_tweet:", replied_tweet)
 
-print("original_tweet:", original_tweet)
-print("responded_tweet:", replied_tweet)
+# # Checkout your eval dashboard here: https://evaengine.ai/virtuals (import your api key to view)
+# eval_result = agent.eval_react(result)
+# print(eval_result)
 
-eval_result = agent.eval_react(original_tweet, replied_tweet)
-print(eval_result)
+# Run multiple test to get average eval score
+eval_results = []
+for i in range(2):
+    result = agent.react(
+        session_id="session-twitter",
+        platform="twitter",
+        tweet_id="1869281466628349975",
+    )
+    eval_result = agent.eval_react(result)
+    eval_results.append(eval_result)
+
+# Calculate averages from eval_results
+final_scores = [result['final_score'] for result in eval_results]
+truth_scores = [result['truth']['score'] for result in eval_results]
+accuracy_scores = [result['accuracy']['score'] for result in eval_results]
+creativity_scores = [result['creativity']['score'] for result in eval_results] 
+engagement_scores = [result['engagement']['score'] for result in eval_results]
+
+print(f"Average scores across {len(eval_results)} evaluations:")
+print(f"Final Score: {(sum(final_scores) / len(final_scores)):.2f}")
+print(f"Truth Score: {(sum(truth_scores) / len(truth_scores)):.2f}")
+print(f"Accuracy Score: {(sum(accuracy_scores) / len(accuracy_scores)):.2f}") 
+print(f"Creativity Score: {(sum(creativity_scores) / len(creativity_scores)):.2f}")
+print(f"Engagement Score: {sum(engagement_scores) / len(engagement_scores):.2f}")
