@@ -256,6 +256,13 @@ class Agent:
             functions=self.enabled_functions,
             custom_functions=self.custom_functions
         )
+    
+    def eval_react(self, input_tweet: str, output_tweet: str):
+        """
+        Evaluate the agent reply with EvaEngine
+        Checkout your eval dashboard here: https://evaengine.ai/virtuals (import your api key to view)
+        """
+        return self.game_sdk.eval_react(input_tweet, output_tweet)
 
     def deploy_twitter(self):
         """
