@@ -4,7 +4,7 @@ from string import Template
 import json
 import uuid
 import requests
-from virtuals_sdk import sdk
+from virtuals_sdk.twitter_agent import sdk
 
 
 @dataclass

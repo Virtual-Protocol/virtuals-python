@@ -1,5 +1,5 @@
 import os
-from virtuals_sdk import game
+from virtuals_sdk.twitter_agent import game
 
 agent = game.Agent(
     api_key=os.environ.get("VIRTUALS_API_KEY"),
@@ -8,11 +8,8 @@ agent = game.Agent(
     world_info="Test World Info"
 )
 
-# applicable only for platform twitter
-agent.list_available_default_twitter_functions()
-agent.use_default_twitter_functions(["wait", "reply_tweet"])
-
-# adding custom functions only for platform twitter
+# running reaction module for other platforms
+# adding custom functions for platform specifics
 agent.add_custom_function(
     game.Function(
         fn_name="custom_search_internet",
@@ -27,20 +24,20 @@ agent.add_custom_function(
         config=game.FunctionConfig(
             method="get",
             url="https://google.com",
-            # specify which platform this function is for, in this case this function is for twitter only
-            platform="twitter",
+            platform="telegram",  # this function will only be used for telegram
             success_feedback="I found the best songs",
             error_feedback="I couldn't find the best songs",
         )
     )
 )
 
-# running reaction module only for platform twitter
+# running reaction module only for platform telegram
 agent.react(
-    session_id="session-twitter",
-    platform="twitter",
-    tweet_id="1869281466628349975",
+    session_id="session-telegram",
+    # specify the platform telegram
+    platform="telegram",
+    # specify the event that triggers the reaction
+    event="message from user: give me some great music?",
+    # specify the task that the agent should do
+    task="reply with a music recommendation",
 )
-
-# running simulation module only for platform twitter
-agent.simulate_twitter(session_id="session-twitter")

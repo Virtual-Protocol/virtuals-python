@@ -1,198 +1,62 @@
 # Virtuals Python SDK Library
-The Virtuals Python SDK is a library that allows you to configure and deploy agents on the Virtuals platform. This SDK/API allows you to configure your agents powered by the GAME architecture. This is similar to configuring your agent in the [Agent Sandbox](https://game-lite.virtuals.io/) on the [Virtuals Platform](https://app.virtuals.io/). 
+The Virtuals Python SDK is a library that allows you interact with the Virtuals Platform.
 
-This also provides a developer-friendly interface to develop and power your custom applications with Virtuals Agents using GAME.
+## About G.A.M.E.
+GAME is a modular agentic framework which enables an agent to plan actions and make decisions autonomously based on information provided to it.
 
-## Documentation
-Detailed documentation to better understand the configurable components and the GAME architecture can be found on [agent configurations](https://www.notion.so/1592d2a429e98016b389ea26b53686a3).
+Please refer to our [whitepaper](https://whitepaper.virtuals.io/developer-documents/game-framework) for more information and resources.
+
+## About Virtuals Python SDK
+Currently, this SDK allows you to develop your agents powered by the GAME architecture in its most fullest and most flexible form.
+
+![New SDK visual](docs/imgs/new_sdk_visual.png)
+The python SDK is made up of 3 main components (Agent, Worker, function), each with configurable arguments.
+
+Agent (a.k.a. [high level planner](https://whitepaper.virtuals.io/developer-documents/game-framework/game-overview#high-level-planner-hlp-context))
+- Takes in a <b>Goal</b>
+  - Drives the agents behaviour through the high level plan which influences the thinking and creation of tasks that would contribute towards this goal
+- Takes in a <b>Description</b>
+  - Combination of what was previously known as World Info + Agent Description
+  - This include a description of the "world" the agent lives in, and the personality and background of the agent
+
+Worker (a.k.a. [low-level planner](https://whitepaper.virtuals.io/developer-documents/game-framework/game-overview#low-level-planner-llp-context)) 
+- Takes in a <b>Description</b>
+  - Used to control which workers are called by the agent, based on the high-level plan and tasks created to contribute to the goal
+
+Function
+- Takes in a <b>Description</b>
+  - Used to control which functions are called by the workers, based on each worker's low-level plan
+  - This can be any python executable
+
+## Features
+- Develop your own custom agents for any application or platform. 
+- Ability to control your agents and workers via descriptions (prompts)
+- Full control of what the agent sees (state) and can do (actions/functions)
+- Ability to fully customise functions. This could include various combinations of programmed logic. For example:
+  - Calling an API to retrieve data
+  - Calling an API to retrieve data, followed by custom calculations or data processing logic in python code
+  - 2 API calls chained together (e.g. calling an API to retrieve web data, and then posting a tweet)
+
+> ### ℹ️ Changes from older python SDK version (prior to 8 Jan 2025)
+>![Old SDK visual](docs/imgs/old_sdk_visual.png)
+> - Ability to fully customise functions (previously, each function was a single API call)
+> - Ability to control the low-level planner via description prompt (previously, only the high-level planner and functions could be controlled via description prompts)
+> - The description defined in the agent is equivalent to what was previously known as world information and agent description
 
 ## Installation
 ```bash
 pip install virtuals_sdk
 ```
 
-## Create an API key
-Open the [Virtuals Platform](https://app.virtuals.io/) and create/get an API key from the Agent Sandbox by clicking “Access G.A.M.E API” 
+## Usage
+Please refer to [`test_agent.py`](examples/game/test_agent.py) and [`test_worker.py`](examples/game/test_agent.py) for usage examples.
 
-![getGAMEApi](./docs/imgs/accesskey.png)
+## How to Contribute
+Contributions are welcome, especially in the form of new plugins! We are working on creating a plugins repo, but in meantime - please contact us via [Twitter](https://x.com/GAME_Virtuals) or [Telegram](https://t.me/virtuaIs_io).
 
-Store the key in a safe location, like a `.bashrc` or a `.zshrc` file. 
+## Documentation
+Detailed documentation to better understand the configurable components and the GAME architecture can be found on [here](https://whitepaper.virtuals.io/developer-documents/game-framework).
 
-```bash
-export VIRTUALS_API_KEY="your_virtuals_api_key"
-```
-
-Alternatively, you can also use a `.env` file ([`python-dotenv` package](https://github.com/theskumar/python-dotenv) to store and load the key) if you are using the Virtuals Python SDK.
-
-## Usage (GAME)
-The Virtuals SDK current main functionalities are to develop and configure agents powered by GAME. Other functionalities to interact with the Virtuals Platform will be supported in the future. This GAME SDK can be used for multiple use cases:
-
-1. Develop, evaluate and update the existing Agent in Twitter environment.
-2. Build on other platforms and application using GAME (Task-based Agent). 
-
-### Update the existing Agent in Twitter environment
-The SDK provides another interface to configure agents that is more friendly to developers. This is similar to configuring your agent in the [Agent Sandbox](https://game-lite.virtuals.io/).
-
-```python
-from virtuals_sdk.game import Agent
-
-# Create agent with just strings for each component
-agent = Agent(
-    api_key=VIRTUALS_API_KEY,
-    goal="Autonomously analyze crypto markets and provide trading insights",
-    description="HODL-9000: A meme-loving trading bot powered by hopium and ramen",
-    world_info="Virtual crypto trading environment where 1 DOGE = 1 DOGE"
-)
-```
-You can also initialize the agent first with just the API key and set the goals, descriptions and world information separately and check the current agent descriptions if needed. 
-
-```python
-agent = Agent(api_key=VIRTUALS_API_KEY)
-
-# check what is current goal, descriptions and world_info
-agent.get_goal()
-agent.get_description()
-agent.get_world_info()
-
-# Set components individually - set change the agent goal/description/worldinfo
-agent.set_goal("Autonomously analyze crypto markets and provide trading insights")
-agent.set_description("HODL-9000: A meme-loving trading bot powered by hopium and ramen")
-agent.set_world_info("Virtual crypto trading environment where 1 DOGE = 1 DOGE")
-
-# check what is current goal, descriptions and world_info
-agent.get_goal()
-agent.get_description()
-agent.get_world_info()
-```
-
-### Functions
-By default, there are no functions enabled when the agent is initialized (i.e. the agent has no actions/functions it can execute). There are a list of available and provided functions for the Twitter/X platform and you can set them.
-
-```python
-print(agent.list_available_default_twitter_functions())
-
-# enable some functions for the agent to use
-agent.use_default_twitter_functions(["wait", "reply_tweet"])
-```
-
-You can then equip the agent with some custom functions as follows:
-```python
-
-search_function = game.Function(
-        fn_name="custom_search_internet",
-        fn_description="search the internet for the best songs",
-        args=[
-            game.FunctionArgument(
-                name="query",
-                type="string",
-                description="The query to search for"
-            )
-        ],
-        config=game.FunctionConfig(
-            method="get",
-            url="https://google.com",
-            platform="twitter", # specify which platform this function is for, in this case this function is for twitter only
-            success_feedback="I found the best songs",
-            error_feedback="I couldn't find the best songs",
-        )
-    )
-
-# adding custom functions only for platform twitter
-agent.add_custom_function(search_function)
-```
-
-### Evaluate with Simulate, Deploy
-You can simulate one step of the agentic loop on Twitter/X with your new configurations and see the outputs. This is similar to the simulate button on the [Agent Sandbox](https://game-lite.virtuals.io/).
-
-```python
-# Simulate one step of the full agentic loop on Twitter/X from the HLP -> LLP -> action (NOTE: supported for Twitter/X only now)
-response = agent.simulate_twitter(session_id="123")
-```
-To more realistically simulate deployment, you can also run through the simulate function with the same session id for a number of steps.
-
-```python
-sid = "456"
-num_steps = 10
-for i in range(num_steps):
-		response = agent.simulate_twitter(session_id=sid)
-```
-
-```python
-# Simulate response to a certain event
-response = agent.react(
-  session_id="567", # string identifier that you decide
-  tweet_id="xxxx",
-  platform="twitter",
-)
-```
-
-Once you are happy, `deploy_twitter` will push your agent configurations to production and run your agent on Twitter/X autonomously.
-```python
-# deploy agent! (NOTE: supported for Twitter/X only now)
-agent.deploy_twitter()
-```
-
-## Build on other platforms using GAME
-`simulate_twitter` and `deploy_twitter` runs through the entire GAME stack from HLP → LLP→ action/function selected. However, these agent functionalities are currently for the Twitter/X platform. You may utilize Task-based Agent with Low-Level Planner and Reaction Module to develop applications that are powered by GAME. The Low Level Planner (LLP) of the agent (please see [documentation](https://www.notion.so/1592d2a429e98016b389ea26b53686a3?pvs=21) for more details on GAME and LLP) can separately act as a decision making engine based on a task description and event occurring. This agentic architecture is simpler but also sufficient for many applications. 
-
-We are releasing this simpler setup as a more generalised/platform agnostic framework (not specific to Twitter/X). The entire GAME stack along with the HLP will be opened up to be fully configurable and platform agnostic in the coming weeks.
-
-### 🖥️ Low-Level Planner (LLP) as a Task-based Agent
-
-![llp.png](./docs/imgs/llp.png)
-
-After configuring the agent’s character card or description and setting up the agents functions, we can then use the `react` method to get an agent to respond and execute a sequence of actions based on the task description provided and the context. Between each action in the sequence, the agent only receives the `success_feedback` and `error_feedback` of each function executed.
-
-```python
-# React/respond to a certain event
-response = agent.react(
-	session_id="567", # string identifier that you decide
-	task="Be friendly and help people who talk to you. Do not be rude.",
-	event="Hi how are you?",
-	platform="TELEGRAM",
-)
-```
-
-> [!IMPORTANT]
-> Remember that the `platform` tag determines what functions are available to the agent. The agent will have access to functions that have the same `platform` tag. All the default available functions listed on `agent.list_available_default_twitter_functions()` and set via `agent.use_default_twitter_functions()` have the `platform` tag of “twitter”.
-
-## Arguments Definition
-
-### Session ID
-The session ID is an identifier for an instance of the agent. When using the same session ID, it maintains and picks up from where it last left off, continuing the session/instance. It should be split per user/ conversation that you are maintaining on your platform. For different platforms, different session ID can be used. 
-
-### Platform Tag
-When adding custom functions, and when calling the react agent (i.e. LLP), there is a platform tag that can be defined. This acts like a filter for the functions available that is passed to the agent. You should define the platform when passing in the events.
-
-### Task Description
-Task description serves as the prompt for the agent to respond. Since the reaction can be platform-based, you can define task description based on the platforms. In the task description, you should pass in any related info that require agent to make decision. That should include:
-- User message
-- Conversation history
-- Instructions
-
-
-## Importing Functions and Sharing Functions
-With this SDK and function structure, importing and sharing functions is also possible. Looking forward to all the different contributions and functionalities we will build together as a community!
-
-```python
-from virtuals_sdk.functions.telegram import TelegramClient
-
-# define your token so that it can attach it to create the correspodning functions
-tg_client = TelegramClient(bot_token="xxx")
-print(tg_client.available_functions)
-
-# get functions
-reply_message_fn = tg_client.get_function("send_message")
-create_poll_fn = tg_client.get_function("create_poll")
-pin_message_fn = tg_client.get_function("pin_message")
-
-# test the execution of functions
-reply_message_fn("xxxxxxxx", "Hello World")
-create_poll_fn("xxxxxxxx", "What is your favorite color?", ["Red", "Blue", "Green"], "True")
-pin_message_fn("xxxxxxxx", "xx", "True")
-
-# add these functions to your agent
-agent.add_custom_function(reply_message_fn)
-agent.add_custom_function(create_poll_fn)
-agent.add_custom_function(pin_message_fn)
-```
+## Useful Resources
+- [TypeScript SDK](https://www.npmjs.com/package/@virtuals-protocol/game): The core logic of this SDK mirrors the logic of this python SDK if you prefer to develop your agents in TypeScript.
+- [Twitter Agent](./src/virtuals_sdk/twitter_agent/README.md): The Virtuals Platform offers a out-of-the-box hosted agent that can be used to interact with the Twitter/X platform, powered by GAME. This agent comes with existing functions/actions that can be used to interact with the Twitter/X platform and can be immediately hosted/deployed as you configure it. This is similar to configuring your agent in the [Agent Sandbox](https://game-lite.virtuals.io/) on the [Virtuals Platform](https://app.virtuals.io/) but through a developer-friendly SDK interface.
