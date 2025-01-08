@@ -1,9 +1,8 @@
 from typing import List, Optional, Callable, Dict
 import uuid
-from utils import post
-from worker import Worker
-from custom_types import Function, FunctionResult, FunctionResultStatus, ActionResponse, ActionType
-from utils import create_agent, create_workers
+from virtuals_sdk.game.worker import Worker
+from virtuals_sdk.game.custom_types import Function, FunctionResult, FunctionResultStatus, ActionResponse, ActionType
+from virtuals_sdk.game.utils import create_agent, create_workers, post
 
 
 class Session:
