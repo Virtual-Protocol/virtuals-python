@@ -1,7 +1,6 @@
 from typing import Any, Callable, Dict, Optional, List
-from custom_types import Function, FunctionResult, FunctionResultStatus, ActionResponse, ActionType
-from utils import create_agent, create_workers
-from utils import post
+from virtuals_sdk.game.custom_types import Function, FunctionResult, FunctionResultStatus, ActionResponse, ActionType
+from virtuals_sdk.game.utils import create_agent, post
 
 
 class Worker:
