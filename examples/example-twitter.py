@@ -10,7 +10,7 @@ agent = game.Agent(
 )
 
 # applicable only for platform twitter
-#agent.list_available_default_twitter_functions()
+agent.list_available_default_twitter_functions()
 agent.use_default_twitter_functions(["wait", "reply_tweet"])
 
 # adding custom functions only for platform twitter

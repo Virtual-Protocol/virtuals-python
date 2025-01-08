@@ -407,7 +407,7 @@ class Agent:
                 }
                 for func in self.custom_functions
             ],
-            "templates": [asdict(template) for template in self.templates],
+            "templates": [template.to_dict() for template in self.templates],
             "tweetUsernames": self.tweet_usernames
         }
         agent_json = json.dumps(export_dict, indent=4)
