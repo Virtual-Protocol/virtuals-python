@@ -417,3 +417,29 @@ class Agent:
             f.write(agent_json)
 
         return agent_json
+
+    def add_share_template(
+        self,
+        start_system_prompt: str,
+        shared_prompt: str,
+        end_system_prompt: str
+    ) -> bool:
+        self.add_template(Template(
+            template_type="TWITTER_START_SYSTEM_PROMPT",
+            system_prompt=start_system_prompt,
+            sys_prompt_response_format=[]
+        ))
+
+        self.add_template(Template(
+            template_type="SHARED",
+            system_prompt=shared_prompt,
+            sys_prompt_response_format=[]
+        ))
+
+        self.add_template(Template(
+            template_type="TWITTER_END_SYSTEM_PROMPT",
+            system_prompt=end_system_prompt,
+            sys_prompt_response_format=[]
+        ))
+
+        return True
