@@ -38,7 +38,7 @@ class GameSDK:
                     "description": description,
                     "worldInfo": world_info,
                     "functions": functions,
-                    "customFunctions": [x.to_dict() for x in custom_functions]
+                    "customFunctions": [x.toJson() for x in custom_functions]
                 }
             },
             headers={"x-api-key": self.api_key}
@@ -90,7 +90,7 @@ class GameSDK:
 
         return response.json()["data"]
 
-    def deploy(self, goal: str, description: str, world_info: str, functions: list, custom_functions: list):
+    def deploy(self, goal: str, description: str, world_info: str, functions: list, custom_functions: list, main_heartbeat: int, reaction_heartbeat: int):
         """
         Simulate the agent configuration
         """
@@ -102,7 +102,11 @@ class GameSDK:
                     "description": description,
                     "worldInfo": world_info,
                     "functions": functions,
-                    "customFunctions": custom_functions
+                    "customFunctions": custom_functions,
+                    "gameState" : {
+                        "mainHeartbeat" : main_heartbeat,
+                        "reactionHeartbeat" : reaction_heartbeat,
+                    }
                 }
             },
             headers={"x-api-key": self.api_key}

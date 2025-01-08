@@ -161,6 +161,8 @@ class Agent:
         goal: str = "",
         description: str = "",
         world_info: str = "",
+        main_heartbeat: int = 15,
+        reaction_heartbeat: int = 5
     ):
         self.game_sdk = sdk.GameSDK(api_key)
         self.goal = goal
@@ -168,6 +170,8 @@ class Agent:
         self.world_info = world_info
         self.enabled_functions: List[str] = []
         self.custom_functions: List[Function] = []
+        self.main_heartbeat = main_heartbeat
+        self.reaction_heartbeat = reaction_heartbeat
 
     def set_goal(self, goal: str):
         self.goal = goal
@@ -179,6 +183,14 @@ class Agent:
     
     def set_world_info(self, world_info: str):
         self.world_info = world_info
+        return True
+    
+    def set_main_heartbeat(self, main_heartbeat: int):
+        self.main_heartbeat = main_heartbeat
+        return True
+    
+    def set_reaction_heartbeat(self, reaction_heartbeat: int):
+        self.reaction_heartbeat = reaction_heartbeat
         return True
 
     def get_goal(self) -> str:
@@ -254,7 +266,9 @@ class Agent:
             self.description,
             self.world_info,
             self.enabled_functions,
-            self.custom_functions
+            self.custom_functions,
+            self.main_heartbeat,
+            self.reaction_heartbeat
         )
 
     def export(self) -> str:
