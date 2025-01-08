@@ -31,7 +31,7 @@ pip install virtuals_sdk
 ```
 
 ## Usage
-Please refer to `test_agent.py` and `test_worker.py` for usage examples.
+Please refer to [`test_agent.py`](examples/game/test_agent.py) and [`test_worker.py`](examples/game/test_agent.py) for usage examples.
 
 ## How to Contribute
 Contributions are welcome, especially in the form of new plugins! To contribute:
