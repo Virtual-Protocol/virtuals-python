@@ -1,5 +1,5 @@
 # Virtuals Python SDK Library
-The Virtuals Python SDK is a library that allows you interact with the Virtuals Platform.
+The Virtuals Python SDK is a library that allows you to interact with the Virtuals Platform.
 
 ## About G.A.M.E.
 GAME is a modular agentic framework which enables an agent to plan actions and make decisions autonomously based on information provided to it.
@@ -14,10 +14,10 @@ The python SDK is made up of 3 main components (Agent, Worker, function), each w
 
 Agent (a.k.a. [high level planner](https://whitepaper.virtuals.io/developer-documents/game-framework/game-overview#high-level-planner-hlp-context))
 - Takes in a <b>Goal</b>
-  - Drives the agents behaviour through the high level plan which influences the thinking and creation of tasks that would contribute towards this goal
+  - Drives the agents behaviour through the high-level plan which influences the thinking and creation of tasks that would contribute towards this goal
 - Takes in a <b>Description</b>
   - Combination of what was previously known as World Info + Agent Description
-  - This include a description of the "world" the agent lives in, and the personality and background of the agent
+  - This includes a description of the "world" the agent lives in, and the personality and background of the agent
 
 Worker (a.k.a. [low-level planner](https://whitepaper.virtuals.io/developer-documents/game-framework/game-overview#low-level-planner-llp-context)) 
 - Takes in a <b>Description</b>
