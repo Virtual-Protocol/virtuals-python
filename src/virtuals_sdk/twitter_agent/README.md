@@ -124,7 +124,7 @@ agent.deploy_twitter()
 ```
 
 ## Build on other platforms using GAME
-`simulate_twitter` and `deploy_twitter` runs through the entire GAME stack from HLP → LLP→ action/function selected. However, these agent functionalities are currently for the Twitter/X platform. You may utilize Task-based Agent with Low-Level Planner and Reaction Module to develop applications that are powered by GAME. The Low Level Planner (LLP) of the agent (please see [documentation](https://www.notion.so/1592d2a429e98016b389ea26b53686a3?pvs=21) for more details on GAME and LLP) can separately act as a decision making engine based on a task description and event occurring. This agentic architecture is simpler but also sufficient for many applications. 
+`simulate_twitter` and `deploy_twitter` runs through the entire GAME stack from HLP → LLP→ action/function selected. However, these agent functionalities are currently for the Twitter/X platform. You may utilize Task-based Agent with Low-Level Planner and Reaction Module to develop applications that are powered by GAME. The Low-Level Planner (LLP) of the agent (please see [documentation](https://www.notion.so/1592d2a429e98016b389ea26b53686a3?pvs=21) for more details on GAME and LLP) can separately act as a decision making engine based on a task description and event occurring. This agentic architecture is simpler but also sufficient for many applications. 
 
 We are releasing this simpler setup as a more generalised/platform agnostic framework (not specific to Twitter/X). The entire GAME stack along with the HLP will be opened up to be fully configurable and platform agnostic in the coming weeks.
 
@@ -168,7 +168,7 @@ With this SDK and function structure, importing and sharing functions is also po
 ```python
 from virtuals_sdk.functions.telegram import TelegramClient
 
-# define your token so that it can attach it to create the correspodning functions
+# define your token so that it can attach it to create the corresponding functions
 tg_client = TelegramClient(bot_token="xxx")
 print(tg_client.available_functions)
 
