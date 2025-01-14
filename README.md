@@ -1,4 +1,6 @@
-# Virtuals Python SDK Library
+# Virtuals Python SDK Library [WARNING: MIGRATING - WILL BE DEPRECATED]
+THIS REPOSITORY WILL NO LONGER BE MAINTAINED AND HAS BEEN MIGRATED OVER TO https://github.com/game-by-virtuals/game-python/tree/main. Please move over to use latest SDK and features.
+
 The Virtuals Python SDK is a library that allows you interact with the Virtuals Platform.
 
 ## About G.A.M.E.
