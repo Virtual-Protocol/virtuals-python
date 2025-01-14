@@ -71,10 +71,10 @@ class GameSDK:
 
         if (task):
             payload["task"] = task
-            
+
         if (tweet_id):
             payload["tweetId"] = tweet_id
-            
+
         print(payload)
 
         response = requests.post(
@@ -102,7 +102,7 @@ class GameSDK:
                     "description": description,
                     "worldInfo": world_info,
                     "functions": functions,
-                    "customFunctions": custom_functions,
+                    "customFunctions": [x.toJson() for x in custom_functions],
                     "gameState" : {
                         "mainHeartbeat" : main_heartbeat,
                         "reactionHeartbeat" : reaction_heartbeat,
