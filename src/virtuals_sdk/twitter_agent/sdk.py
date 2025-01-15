@@ -15,7 +15,7 @@ class GameSDK:
         response = requests.get(
             f"{self.api_url}/functions", headers={"x-api-key": self.api_key})
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise Exception(response.json())
 
         functions = {}
@@ -44,7 +44,7 @@ class GameSDK:
             headers={"x-api-key": self.api_key}
         )
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise Exception(response.json())
 
         return response.json()["data"]
@@ -66,13 +66,13 @@ class GameSDK:
             "customFunctions": [x.toJson() for x in custom_functions]
         }
 
-        if (event):
+        if event:
             payload["event"] = event
 
-        if (task):
+        if task:
             payload["task"] = task
             
-        if (tweet_id):
+        if tweet_id:
             payload["tweetId"] = tweet_id
             
         print(payload)
@@ -85,7 +85,7 @@ class GameSDK:
             headers={"x-api-key": self.api_key}
         )
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise Exception(response.json())
 
         return response.json()["data"]
@@ -112,7 +112,7 @@ class GameSDK:
             headers={"x-api-key": self.api_key}
         )
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise Exception(response.json())
 
         return response.json()["data"]
