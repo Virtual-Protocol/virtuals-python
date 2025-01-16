@@ -168,7 +168,7 @@ With this SDK and function structure, importing and sharing functions is also po
 ```python
 from virtuals_sdk.functions.telegram import TelegramClient
 
-# define your token so that it can attach it to create the correspodning functions
+# define your token so that it can attach it to create the corresponding functions
 tg_client = TelegramClient(bot_token="xxx")
 print(tg_client.available_functions)
 
