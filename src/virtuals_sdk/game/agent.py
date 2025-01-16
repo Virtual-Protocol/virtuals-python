@@ -224,7 +224,7 @@ class Agent:
             self.worker_states[self.current_worker_id] = updated_worker_state
 
         elif action_response.action_type == ActionType.WAIT:
-            print("Task ended completed or ended (not possible wiht current actions)")
+            print("Task ended completed or ended (not possible with current actions)")
 
         elif action_response.action_type == ActionType.GO_TO:
             if not action_response.action_args:

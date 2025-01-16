@@ -14,7 +14,7 @@ def get_worker_state_fn(function_result: FunctionResult, current_state: dict) ->
     This function will get called at every step of the workers execution to form the agent's state.
     It will take as input the function result from the previous step.
     """
-    # dict containing info about the function result as implemented in the exectuable
+    # dict containing info about the function result as implemented in the executable
     info = function_result.info 
 
     # example of fixed state (function result info is not used to change state) - the first state placed here is the initial state
@@ -32,7 +32,7 @@ def get_worker_state_fn(function_result: FunctionResult, current_state: dict) ->
         # at the first step, initialise the state with just the init state
         new_state = init_state
     else:
-        # do something wiht the current state input and the function result info
+        # do something with the current state input and the function result info
         new_state = init_state # this is just an example where the state is static
 
     return new_state
@@ -58,7 +58,7 @@ def get_agent_state_fn(function_result: FunctionResult, current_state: dict) -> 
         # at the first step, initialise the state with just the init state
         new_state = init_state
     else:
-        # do something wiht the current state input and the function result info
+        # do something with the current state input and the function result info
         new_state = init_state # this is just an example where the state is static
 
     return new_state
