@@ -5,7 +5,7 @@ from typing import Tuple
 
 game_api_key=""
 
-# the get_worker_state_fn and the get_agent_state_fn can be the same function or diffferent
+# the get_worker_state_fn and the get_agent_state_fn can be the same function or different
 # each worker can also have a different get_worker_state_fn and maintain their own state
 # or they can share the same get_worker_state_fn and maintain the same state
 
