@@ -1,6 +1,17 @@
 # Virtuals Python SDK Library [WARNING: MIGRATING - WILL BE DEPRECATED]
 THIS REPOSITORY WILL NO LONGER BE MAINTAINED AND HAS BEEN MIGRATED OVER TO https://github.com/game-by-virtuals/game-python/tree/main. Please move over to use latest SDK and features.
 
+## Table of Contents
+- [About G.A.M.E.](#about-game)
+- [About Virtuals Python SDK](#about-virtuals-python-sdk)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [How to Contribute](#how-to-contribute)
+- [Documentation](#documentation)
+- [Useful Resources](#useful-resources)
+
 The Virtuals Python SDK is a library that allows you interact with the Virtuals Platform.
 
 ## About G.A.M.E.
@@ -45,13 +56,48 @@ Function
 > - Ability to control the low-level planner via description prompt (previously, only the high-level planner and functions could be controlled via description prompts)
 > - The description defined in the agent is equivalent to what was previously known as world information and agent description
 
+## Prerequisites
+- Python 3.8 or higher
+- pip package manager
+- A basic understanding of the GAME framework (refer to our [whitepaper](https://whitepaper.virtuals.io/developer-documents/game-framework))
+
 ## Installation
 ```bash
+# Create and activate a virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+
+# Install the package
 pip install virtuals_sdk
+
+# Verify installation
+python -c "import virtuals_sdk; print(virtuals_sdk.__version__)"
 ```
 
 ## Usage
-Please refer to [`test_agent.py`](examples/game/test_agent.py) and [`test_worker.py`](examples/game/test_agent.py) for usage examples.
+The SDK provides a simple way to create and configure your agents. Here's a quick example:
+
+```python
+from virtuals_sdk import Agent, Worker
+
+# Create an agent
+agent = Agent(
+    goal="Your agent's goal here",
+    description="Your agent's description and world information"
+)
+
+# Create a worker
+worker = Worker(
+    description="Your worker's description"
+)
+
+# Start the agent
+agent.start()
+```
+
+For more detailed examples, please refer to:
+- [`test_agent.py`](examples/game/test_agent.py) - Example of agent configuration and usage
+- [`test_worker.py`](examples/game/test_worker.py) - Example of worker configuration and usage
 
 ## How to Contribute
 Contributions are welcome, especially in the form of new plugins! We are working on creating a plugins repo, but in meantime - please contact us via [Twitter](https://x.com/GAME_Virtuals) or [Telegram](https://t.me/virtuaIs_io).
